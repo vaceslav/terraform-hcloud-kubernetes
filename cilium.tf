@@ -19,14 +19,14 @@ data "helm_template" "cilium" {
     name  = "k8s.requireIPv4PodCIDR"
     value = true
   }
-  set {
-    name  = "routingMode"
-    value = "native"
-  }
-  set {
-    name  = "ipv4NativeRoutingCIDR"
-    value = local.native_routing_cidr
-  }
+  # set {
+  #   name  = "routingMode"
+  #   value = "native"
+  # }
+  # set {
+  #   name  = "ipv4NativeRoutingCIDR"
+  #   value = local.native_routing_cidr
+  # }
   set {
     name  = "kubeProxyReplacement"
     value = true
@@ -44,10 +44,10 @@ data "helm_template" "cilium" {
   #   name  = "bpf.datapathMode"
   #   value = "netkit"
   # }
-  set {
-    name  = "loadBalancer.acceleration"
-    value = "native"
-  }
+  # set {
+  #   name  = "loadBalancer.acceleration"
+  #   value = "native"
+  # }
   set {
     name  = "installNoConntrackIptablesRules"
     value = true
