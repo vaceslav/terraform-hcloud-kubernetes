@@ -48,10 +48,10 @@ data "helm_template" "cilium" {
   #   name  = "loadBalancer.acceleration"
   #   value = "native"
   # }
-  set {
-    name  = "installNoConntrackIptablesRules"
-    value = true
-  }
+  # set {
+  #   name  = "installNoConntrackIptablesRules"
+  #   value = true
+  # }
 
   set {
     name  = "egressGateway.enabled"
