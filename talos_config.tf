@@ -3,23 +3,23 @@ locals {
 
   # Kubernetes Manifests for Talos
   talos_inline_manifests = concat(
-    [
-      local.talos_backup_manifest,
-      local.hcloud_secret_manifest,
-      local.hcloud_ccm_manifest,
-      local.cilium_manifest
-    ],
+    [local.hcloud_secret_manifest],
+    local.cilium_manifest != null ? [local.cilium_manifest] : [],
+    local.hcloud_ccm_manifest != null ? [local.hcloud_ccm_manifest] : [],
     local.hcloud_csi_manifest != null ? [local.hcloud_csi_manifest] : [],
+    local.talos_backup_manifest != null ? [local.talos_backup_manifest] : [],
     local.longhorn_manifest != null ? [local.longhorn_manifest] : [],
     local.metrics_server_manifest != null ? [local.metrics_server_manifest] : [],
     local.cert_manager_manifest != null ? [local.cert_manager_manifest] : [],
     local.ingress_nginx_manifest != null ? [local.ingress_nginx_manifest] : [],
-    local.cluster_autoscaler_manifest != null ? [local.cluster_autoscaler_manifest] : []
+    local.cluster_autoscaler_manifest != null ? [local.cluster_autoscaler_manifest] : [],
+    var.talos_extra_inline_manifests != null ? var.talos_extra_inline_manifests : []
   )
-  talos_manifests = [
-    "https://raw.githubusercontent.com/siderolabs/talos-cloud-controller-manager/${var.talos_ccm_version}/docs/deploy/cloud-controller-manager-daemonset.yml",
-    "https://github.com/prometheus-operator/prometheus-operator/releases/download/${var.prometheus_operator_crds_version}/stripped-down-crds.yaml"
-  ]
+  talos_manifests = concat(
+    var.talos_ccm_enabled ? ["https://raw.githubusercontent.com/siderolabs/talos-cloud-controller-manager/${var.talos_ccm_version}/docs/deploy/cloud-controller-manager-daemonset.yml"] : [],
+    var.prometheus_operator_crds_enabled ? ["https://github.com/prometheus-operator/prometheus-operator/releases/download/${var.prometheus_operator_crds_version}/stripped-down-crds.yaml"] : [],
+    var.talos_extra_remote_manifests != null ? var.talos_extra_remote_manifests : []
+  )
 
   # Talos and Kubernetes Certificates
   certificate_san = sort(
@@ -123,6 +123,17 @@ locals {
       }
     ]
   )
+
+  # Talos Discovery
+  talos_discovery_enabled = var.talos_discovery_kubernetes_enabled || var.talos_discovery_service_enabled
+
+  talos_discovery = {
+    enabled = local.talos_discovery_enabled
+    registries = {
+      kubernetes = { disabled = !var.talos_discovery_kubernetes_enabled }
+      service    = { disabled = !var.talos_discovery_service_enabled }
+    }
+  }
 
   # Control Plane Config
   control_plane_talos_config_patch = {
@@ -232,7 +243,7 @@ locals {
           servers = var.talos_time_servers
         }
         logging = {
-          destinations = var.talos_service_log_destinations
+          destinations = var.talos_logging_destinations
         }
       }
       cluster = {
@@ -263,13 +274,7 @@ locals {
             "bind-address"   = "0.0.0.0"
           }
         }
-        discovery = {
-          enabled = true,
-          registries = {
-            kubernetes = { disabled = false }
-            service    = { disabled = true }
-          }
-        }
+        discovery = local.talos_discovery
         etcd = {
           advertisedSubnets = [hcloud_network_subnet.control_plane.ip_range]
           extraArgs = {
@@ -376,7 +381,7 @@ locals {
           servers = var.talos_time_servers
         }
         logging = {
-          destinations = var.talos_service_log_destinations
+          destinations = var.talos_logging_destinations
         }
       }
       cluster = {
@@ -389,13 +394,7 @@ locals {
         proxy = {
           disabled = true
         }
-        discovery = {
-          enabled = true,
-          registries = {
-            kubernetes = { disabled = false }
-            service    = { disabled = true }
-          }
-        }
+        discovery = local.talos_discovery
       }
     }
   }
@@ -483,7 +482,7 @@ locals {
           servers = var.talos_time_servers
         }
         logging = {
-          destinations = var.talos_service_log_destinations
+          destinations = var.talos_logging_destinations
         }
       }
       cluster = {
@@ -496,13 +495,7 @@ locals {
         proxy = {
           disabled = true
         }
-        discovery = {
-          enabled = true,
-          registries = {
-            kubernetes = { disabled = false }
-            service    = { disabled = true }
-          }
-        }
+        discovery = local.talos_discovery
       }
     }
   }
