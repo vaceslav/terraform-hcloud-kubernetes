@@ -987,7 +987,7 @@ variable "cilium_helm_chart" {
 
 variable "cilium_helm_version" {
   type        = string
-  default     = "1.17.3"
+  default     = "1.17.5"
   description = "Version of the Cilium Helm chart to deploy."
 }
 
@@ -1135,7 +1135,7 @@ variable "ingress_nginx_helm_chart" {
 
 variable "ingress_nginx_helm_version" {
   type        = string
-  default     = "4.12.2"
+  default     = "4.13.0"
   description = "Version of the Ingress NGINX Controller Helm chart to deploy."
 }
 
