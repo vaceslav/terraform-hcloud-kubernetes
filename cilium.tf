@@ -88,10 +88,10 @@ data "helm_template" "cilium" {
       name  = "bpf.datapathMode"
       value = var.cilium_bpf_datapath_mode
     },
-    {
-      name  = "loadBalancer.acceleration"
-      value = "native"
-    },
+    # {
+    #   name  = "loadBalancer.acceleration"
+    #   value = "native"
+    # },
     # {
     #   name  = "installNoConntrackIptablesRules"
     #   value = true
